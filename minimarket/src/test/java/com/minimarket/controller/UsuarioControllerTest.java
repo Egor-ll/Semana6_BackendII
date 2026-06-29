@@ -227,8 +227,7 @@ class UsuarioControllerTest {
         verify(usuarioService, never()).deleteById(anyLong());
     }
 
-    // Helper to build a request JSON that includes password and roles (password is WRITE_ONLY in entity)
-    // IMPORTANT: we trim username here to satisfy @Pattern validation in the entity
+    
     private ObjectNode buildUsuarioJson(String username, String password, String rolNombre) {
         ObjectNode userJson = objectMapper.createObjectNode();
         userJson.put("username", username == null ? null : username.trim());

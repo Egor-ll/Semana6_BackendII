@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CategoriaController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.controller</a> &gt; <span class="el_source">CategoriaController.java</span></div><h1>CategoriaController.java</h1><pre class="source lang-java linenums">package com.minimarket.controller;
+
+import com.minimarket.entity.Categoria;
+import com.minimarket.service.CategoriaService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/categorias&quot;)
+public class CategoriaController {
+
+    private final CategoriaService categoriaService;
+
+<span class="fc" id="L20">    public CategoriaController(CategoriaService categoriaService) {</span>
+<span class="fc" id="L21">        this.categoriaService = categoriaService;</span>
+<span class="fc" id="L22">    }</span>
+
+    @GetMapping
+    @PreAuthorize(&quot;hasAnyRole('CLIENTE', 'EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;List&lt;Categoria&gt;&gt; listarCategorias() {
+<span class="nc" id="L27">        return ResponseEntity.ok(categoriaService.findAll());</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('CLIENTE', 'EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; obtenerCategoriaPorId(@PathVariable Long id) {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (idInvalido(id)) {</span>
+<span class="nc" id="L34">            return ResponseEntity.badRequest().body(&quot;El id de la categoría debe ser válido&quot;);</span>
+        }
+
+<span class="nc" id="L37">        Categoria categoria = categoriaService.findById(id);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        return categoria != null ? ResponseEntity.ok(categoria) : ResponseEntity.notFound().build();</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasAnyRole('EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; guardarCategoria(@Valid @RequestBody Categoria categoria) {
+<span class="nc" id="L44">        sanitizarCategoria(categoria);</span>
+<span class="nc" id="L45">        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.save(categoria));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; actualizarCategoria(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (idInvalido(id)) {</span>
+<span class="nc" id="L52">            return ResponseEntity.badRequest().body(&quot;El id de la categoría debe ser válido&quot;);</span>
+        }
+
+<span class="nc" id="L55">        Categoria existente = categoriaService.findById(id);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (existente == null) {</span>
+<span class="nc" id="L57">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="nc" id="L60">        categoria.setId(id);</span>
+<span class="nc" id="L61">        sanitizarCategoria(categoria);</span>
+<span class="nc" id="L62">        return ResponseEntity.ok(categoriaService.save(categoria));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; eliminarCategoria(@PathVariable Long id) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (idInvalido(id)) {</span>
+<span class="nc" id="L69">            return ResponseEntity.badRequest().body(&quot;El id de la categoría debe ser válido&quot;);</span>
+        }
+
+<span class="nc" id="L72">        Categoria categoria = categoriaService.findById(id);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (categoria == null) {</span>
+<span class="nc" id="L74">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="nc" id="L77">        categoriaService.deleteById(id);</span>
+<span class="nc" id="L78">        return ResponseEntity.noContent().build();</span>
+    }
+
+    private void sanitizarCategoria(Categoria categoria) {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (categoria.getNombre() != null) {</span>
+<span class="nc" id="L83">            categoria.setNombre(HtmlUtils.htmlEscape(categoria.getNombre().trim()));</span>
+        }
+<span class="nc" id="L85">    }</span>
+
+    private boolean idInvalido(Long id) {
+<span class="nc bnc" id="L88" title="All 4 branches missed.">        return id == null || id &lt;= 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

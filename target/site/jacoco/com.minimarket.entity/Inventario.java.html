@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Inventario.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.entity</a> &gt; <span class="el_source">Inventario.java</span></div><h1>Inventario.java</h1><pre class="source lang-java linenums">package com.minimarket.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.Date;
+
+@Entity
+<span class="fc" id="L12">public class Inventario {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;producto_id&quot;, nullable = false)
+    @JsonIgnoreProperties({&quot;categoria&quot;, &quot;inventarios&quot;})
+    @NotNull(message = &quot;El producto es obligatorio&quot;)
+    private Producto producto;
+
+    @Column(nullable = false)
+    @NotNull(message = &quot;La cantidad es obligatoria&quot;)
+    @Min(value = 1, message = &quot;La cantidad debe ser mayor que cero&quot;)
+    private Integer cantidad;
+
+    @Column(nullable = false)
+    @NotBlank(message = &quot;El tipo de movimiento es obligatorio&quot;)
+    private String tipoMovimiento;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    @NotNull(message = &quot;La fecha del movimiento es obligatoria&quot;)
+    private Date fechaMovimiento;
+
+    public Long getId() {
+<span class="fc" id="L39">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L43">        this.id = id;</span>
+<span class="fc" id="L44">    }</span>
+
+    public Producto getProducto() {
+<span class="fc" id="L47">        return producto;</span>
+    }
+
+    public void setProducto(Producto producto) {
+<span class="fc" id="L51">        this.producto = producto;</span>
+<span class="fc" id="L52">    }</span>
+
+    public Integer getCantidad() {
+<span class="fc" id="L55">        return cantidad;</span>
+    }
+
+    public void setCantidad(Integer cantidad) {
+<span class="fc" id="L59">        this.cantidad = cantidad;</span>
+<span class="fc" id="L60">    }</span>
+
+    public String getTipoMovimiento() {
+<span class="fc" id="L63">        return tipoMovimiento;</span>
+    }
+
+    public void setTipoMovimiento(String tipoMovimiento) {
+<span class="fc" id="L67">        this.tipoMovimiento = tipoMovimiento;</span>
+<span class="fc" id="L68">    }</span>
+
+    public Date getFechaMovimiento() {
+<span class="fc" id="L71">        return fechaMovimiento;</span>
+    }
+
+    public void setFechaMovimiento(Date fechaMovimiento) {
+<span class="fc" id="L75">        this.fechaMovimiento = fechaMovimiento;</span>
+<span class="fc" id="L76">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

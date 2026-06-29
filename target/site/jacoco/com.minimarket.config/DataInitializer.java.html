@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.config</a> &gt; <span class="el_source">DataInitializer.java</span></div><h1>DataInitializer.java</h1><pre class="source lang-java linenums">package com.minimarket.config;
+
+import com.minimarket.entity.Categoria;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Rol;
+import com.minimarket.entity.Usuario;
+import com.minimarket.repository.CategoriaRepository;
+import com.minimarket.repository.ProductoRepository;
+import com.minimarket.repository.RolRepository;
+import com.minimarket.repository.UsuarioRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import java.util.Set;
+
+@Component
+public class DataInitializer implements CommandLineRunner {
+
+    private final RolRepository rolRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final ProductoRepository productoRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public DataInitializer(RolRepository rolRepository,
+                           UsuarioRepository usuarioRepository,
+                           CategoriaRepository categoriaRepository,
+                           ProductoRepository productoRepository,
+<span class="fc" id="L30">                           PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L31">        this.rolRepository = rolRepository;</span>
+<span class="fc" id="L32">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L33">        this.categoriaRepository = categoriaRepository;</span>
+<span class="fc" id="L34">        this.productoRepository = productoRepository;</span>
+<span class="fc" id="L35">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L36">    }</span>
+
+    @Override
+    public void run(String... args) {
+<span class="fc" id="L40">        Rol cliente = obtenerOCrearRol(&quot;CLIENTE&quot;);</span>
+<span class="fc" id="L41">        Rol empleado = obtenerOCrearRol(&quot;EMPLEADO&quot;);</span>
+<span class="fc" id="L42">        Rol administrador = obtenerOCrearRol(&quot;ADMINISTRADOR&quot;);</span>
+
+<span class="fc" id="L44">        crearUsuarioSiNoExiste(&quot;cliente&quot;, &quot;cliente123&quot;, Set.of(cliente));</span>
+<span class="fc" id="L45">        crearUsuarioSiNoExiste(&quot;empleado&quot;, &quot;empleado123&quot;, Set.of(empleado));</span>
+<span class="fc" id="L46">        crearUsuarioSiNoExiste(&quot;admin&quot;, &quot;admin123&quot;, Set.of(administrador));</span>
+
+<span class="fc" id="L48">        Categoria abarrotes = obtenerOCrearCategoria(&quot;Abarrotes&quot;);</span>
+<span class="fc" id="L49">        Categoria bebidas = obtenerOCrearCategoria(&quot;Bebidas&quot;);</span>
+<span class="fc" id="L50">        Categoria limpieza = obtenerOCrearCategoria(&quot;Artículos de limpieza&quot;);</span>
+
+<span class="fc" id="L52">        crearProductoSiNoExiste(&quot;Arroz 1kg&quot;, 1590.0, 80, abarrotes);</span>
+<span class="fc" id="L53">        crearProductoSiNoExiste(&quot;Agua mineral 1.5L&quot;, 990.0, 120, bebidas);</span>
+<span class="fc" id="L54">        crearProductoSiNoExiste(&quot;Detergente líquido&quot;, 3990.0, 45, limpieza);</span>
+<span class="fc" id="L55">    }</span>
+
+    private Rol obtenerOCrearRol(String nombre) {
+<span class="fc" id="L58">        return rolRepository.findByNombre(nombre)</span>
+<span class="pc" id="L59">                .orElseGet(() -&gt; rolRepository.save(new Rol(nombre)));</span>
+    }
+
+    private void crearUsuarioSiNoExiste(String username, String password, Set&lt;Rol&gt; roles) {
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (usuarioRepository.findByUsername(username).isEmpty()) {</span>
+<span class="nc" id="L64">            Usuario usuario = new Usuario();</span>
+<span class="nc" id="L65">            usuario.setUsername(username);</span>
+<span class="nc" id="L66">            usuario.setPassword(passwordEncoder.encode(password));</span>
+<span class="nc" id="L67">            usuario.setRoles(roles);</span>
+<span class="nc" id="L68">            usuarioRepository.save(usuario);</span>
+        }
+<span class="fc" id="L70">    }</span>
+
+    private Categoria obtenerOCrearCategoria(String nombre) {
+<span class="fc" id="L73">        return categoriaRepository.findByNombre(nombre)</span>
+<span class="fc" id="L74">                .orElseGet(() -&gt; {</span>
+<span class="nc" id="L75">                    Categoria categoria = new Categoria();</span>
+<span class="nc" id="L76">                    categoria.setNombre(nombre);</span>
+<span class="nc" id="L77">                    return categoriaRepository.save(categoria);</span>
+                });
+    }
+
+    private void crearProductoSiNoExiste(String nombre, Double precio, Integer stock, Categoria categoria) {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (productoRepository.findByNombreIgnoreCase(nombre).isEmpty()) {</span>
+<span class="nc" id="L83">            Producto producto = new Producto();</span>
+<span class="nc" id="L84">            producto.setNombre(nombre);</span>
+<span class="nc" id="L85">            producto.setPrecio(precio);</span>
+<span class="nc" id="L86">            producto.setStock(stock);</span>
+<span class="nc" id="L87">            producto.setCategoria(categoria);</span>
+<span class="nc" id="L88">            productoRepository.save(producto);</span>
+        }
+<span class="fc" id="L90">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

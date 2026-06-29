@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VentaServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.service.impl</a> &gt; <span class="el_source">VentaServiceImpl.java</span></div><h1>VentaServiceImpl.java</h1><pre class="source lang-java linenums">package com.minimarket.service.impl;
+
+import com.minimarket.entity.DetalleVenta;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Usuario;
+import com.minimarket.entity.Venta;
+import com.minimarket.repository.ProductoRepository;
+import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.repository.VentaRepository;
+import com.minimarket.service.VentaService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+@Service
+public class VentaServiceImpl implements VentaService {
+
+    private final VentaRepository ventaRepository;
+    private final ProductoRepository productoRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public VentaServiceImpl(
+            VentaRepository ventaRepository,
+            ProductoRepository productoRepository,
+            UsuarioRepository usuarioRepository
+<span class="fc" id="L33">    ) {</span>
+<span class="fc" id="L34">        this.ventaRepository = ventaRepository;</span>
+<span class="fc" id="L35">        this.productoRepository = productoRepository;</span>
+<span class="fc" id="L36">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L37">    }</span>
+
+    @Override
+    public List&lt;Venta&gt; findAll() {
+<span class="fc" id="L41">        return ventaRepository.findAll();</span>
+    }
+
+    @Override
+    public Venta findById(Long id) {
+<span class="fc" id="L46">        return ventaRepository.findById(Objects.requireNonNull(id, &quot;El id de la venta no puede ser nulo&quot;))</span>
+<span class="fc" id="L47">                .orElse(null);</span>
+    }
+
+    @Override
+    @Transactional
+    public Venta save(Venta venta) {
+        // Validación de entrada primero (para que lance NPE si venta es null)
+<span class="fc" id="L54">        Venta ventaSegura = Objects.requireNonNull(venta, &quot;La venta no puede ser nula&quot;);</span>
+
+        // ROLE_CAJERO puede generar ventas (comprobación de seguridad después de validar entrada)
+<span class="fc" id="L57">        Authentication auth = SecurityContextHolder.getContext().getAuthentication();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (auth == null || auth.getAuthorities().stream()</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">                .noneMatch(a -&gt; &quot;ROLE_CAJERO&quot;.equals(a.getAuthority()))) {</span>
+<span class="fc" id="L60">            throw new AccessDeniedException(&quot;Solo los cajeros pueden generar ventas&quot;);</span>
+        }
+
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">        if (ventaSegura.getUsuario() == null || ventaSegura.getUsuario().getId() == null) {</span>
+<span class="nc" id="L64">            throw new IllegalArgumentException(&quot;La venta debe tener un usuario válido&quot;);</span>
+        }
+
+<span class="fc" id="L67">        Usuario usuario = usuarioRepository.findById(ventaSegura.getUsuario().getId())</span>
+<span class="fc" id="L68">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;El usuario indicado no existe&quot;));</span>
+
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">        if (ventaSegura.getDetalles() == null || ventaSegura.getDetalles().isEmpty()) {</span>
+<span class="fc" id="L71">            throw new IllegalArgumentException(&quot;La venta debe tener al menos un detalle&quot;);</span>
+        }
+
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (ventaSegura.getFecha() == null) {</span>
+<span class="fc" id="L75">            ventaSegura.setFecha(new Date());</span>
+        }
+
+<span class="fc" id="L78">        ventaSegura.setUsuario(usuario);</span>
+
+<span class="fc" id="L80">        BigDecimal total = BigDecimal.ZERO;</span>
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (DetalleVenta detalle : ventaSegura.getDetalles()) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if (detalle == null) {</span>
+<span class="nc" id="L84">                throw new IllegalArgumentException(&quot;Los detalles de la venta no pueden contener valores nulos&quot;);</span>
+            }
+
+<span class="pc bpc" id="L87" title="2 of 4 branches missed.">            if (detalle.getProducto() == null || detalle.getProducto().getId() == null) {</span>
+<span class="nc" id="L88">                throw new IllegalArgumentException(&quot;Cada detalle debe tener un producto válido&quot;);</span>
+            }
+
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">            if (detalle.getCantidad() == null || detalle.getCantidad() &lt; 1) {</span>
+<span class="nc" id="L92">                throw new IllegalArgumentException(&quot;La cantidad de cada detalle debe ser mayor o igual a 1&quot;);</span>
+            }
+
+<span class="fc" id="L95">            Producto producto = productoRepository.findById(detalle.getProducto().getId())</span>
+<span class="fc" id="L96">                    .orElseThrow(() -&gt; new IllegalArgumentException(&quot;El producto indicado no existe&quot;));</span>
+
+<span class="pc bpc" id="L98" title="1 of 4 branches missed.">            if (producto.getStock() == null || producto.getStock() &lt; detalle.getCantidad()) {</span>
+<span class="fc" id="L99">                throw new IllegalArgumentException(&quot;Stock insuficiente&quot;);</span>
+            }
+
+            // Obtener precio
+<span class="fc" id="L103">            Double precioDouble = producto.getPrecio();</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (precioDouble == null) {</span>
+<span class="nc" id="L105">                throw new IllegalArgumentException(&quot;El producto no tiene precio definido&quot;);</span>
+            }
+
+            // asignar precio en el detalle 
+<span class="fc" id="L109">            detalle.setPrecio(precioDouble);</span>
+
+            // reducir stock y persistir producto
+<span class="fc" id="L112">            producto.setStock(producto.getStock() - detalle.getCantidad());</span>
+<span class="fc" id="L113">            productoRepository.save(producto);</span>
+
+            // asegurar que el detalle referencia el producto actualizado
+<span class="fc" id="L116">            detalle.setProducto(producto);</span>
+<span class="fc" id="L117">            detalle.setVenta(ventaSegura);</span>
+
+            // acumular total con BigDecimal (precio * cantidad)
+<span class="fc" id="L120">            BigDecimal precio = BigDecimal.valueOf(precioDouble);</span>
+<span class="fc" id="L121">            BigDecimal cantidad = BigDecimal.valueOf(detalle.getCantidad());</span>
+<span class="fc" id="L122">            total = total.add(precio.multiply(cantidad));</span>
+<span class="fc" id="L123">        }</span>
+
+        // asignar total 
+<span class="fc" id="L126">        ventaSegura.setTotal(total);</span>
+
+        // persistir venta
+<span class="fc" id="L129">        return ventaRepository.save(ventaSegura);</span>
+    }
+
+    @Override
+    public List&lt;Venta&gt; findByUsuarioId(Long usuarioId) {
+<span class="fc" id="L134">        return ventaRepository.findByUsuarioId(Objects.requireNonNull(usuarioId, &quot;El id del usuario no puede ser nulo&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

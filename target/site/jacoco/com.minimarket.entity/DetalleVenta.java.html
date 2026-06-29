@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DetalleVenta.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.entity</a> &gt; <span class="el_source">DetalleVenta.java</span></div><h1>DetalleVenta.java</h1><pre class="source lang-java linenums">package com.minimarket.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
+<span class="fc" id="L10">public class DetalleVenta {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;venta_id&quot;, nullable = false)
+    @JsonIgnoreProperties(&quot;detalles&quot;)
+    private Venta venta;
+
+    @NotNull(message = &quot;El producto del detalle es obligatorio&quot;)
+    @ManyToOne
+    @JoinColumn(name = &quot;producto_id&quot;, nullable = false)
+    @JsonIgnoreProperties({&quot;categoria&quot;, &quot;inventarios&quot;})
+    private Producto producto;
+
+    @NotNull(message = &quot;La cantidad es obligatoria&quot;)
+    @Min(value = 1, message = &quot;La cantidad debe ser mayor o igual a 1&quot;)
+    @Column(nullable = false)
+    private Integer cantidad;
+
+    @NotNull(message = &quot;El precio es obligatorio&quot;)
+    @DecimalMin(value = &quot;0.01&quot;, message = &quot;El precio debe ser mayor que 0&quot;)
+    @Column(nullable = false)
+    private Double precio;
+
+    public Long getId() {
+<span class="fc" id="L38">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L42">        this.id = id;</span>
+<span class="fc" id="L43">    }</span>
+
+    public Venta getVenta() {
+<span class="nc" id="L46">        return venta;</span>
+    }
+
+    public void setVenta(Venta venta) {
+<span class="fc" id="L50">        this.venta = venta;</span>
+<span class="fc" id="L51">    }</span>
+
+    public Producto getProducto() {
+<span class="fc" id="L54">        return producto;</span>
+    }
+
+    public void setProducto(Producto producto) {
+<span class="fc" id="L58">        this.producto = producto;</span>
+<span class="fc" id="L59">    }</span>
+
+    public Integer getCantidad() {
+<span class="fc" id="L62">        return cantidad;</span>
+    }
+
+    public void setCantidad(Integer cantidad) {
+<span class="fc" id="L66">        this.cantidad = cantidad;</span>
+<span class="fc" id="L67">    }</span>
+
+    public Double getPrecio() {
+<span class="fc" id="L70">        return precio;</span>
+    }
+
+    public void setPrecio(Double precio) {
+<span class="fc" id="L74">        this.precio = precio;</span>
+<span class="fc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

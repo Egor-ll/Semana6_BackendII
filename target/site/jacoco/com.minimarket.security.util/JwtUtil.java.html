@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.security.util</a> &gt; <span class="el_source">JwtUtil.java</span></div><h1>JwtUtil.java</h1><pre class="source lang-java linenums">package com.minimarket.security.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+@Component
+<span class="fc" id="L21">public class JwtUtil {</span>
+
+    @Value(&quot;${jwt.secret}&quot;)
+    private String secretKey;
+
+    @Value(&quot;${jwt.expiration}&quot;)
+    private long jwtExpiration;
+
+    public String generarToken(UserDetails userDetails) {
+<span class="nc bnc" id="L30" title="All 6 branches missed.">        if (userDetails == null || userDetails.getUsername() == null || userDetails.getUsername().isBlank()) {</span>
+<span class="nc" id="L31">            throw new IllegalArgumentException(&quot;No se puede generar un token JWT sin usuario válido&quot;);</span>
+        }
+
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (jwtExpiration &lt;= 0) {</span>
+<span class="nc" id="L35">            throw new IllegalStateException(&quot;La expiración del JWT debe ser mayor a cero&quot;);</span>
+        }
+
+<span class="nc" id="L38">        Map&lt;String, Object&gt; claims = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L40">        List&lt;String&gt; roles = userDetails.getAuthorities()</span>
+<span class="nc" id="L41">                .stream()</span>
+<span class="nc" id="L42">                .map(GrantedAuthority::getAuthority)</span>
+<span class="nc" id="L43">                .toList();</span>
+
+<span class="nc" id="L45">        claims.put(&quot;roles&quot;, roles);</span>
+
+<span class="nc" id="L47">        return Jwts.builder()</span>
+<span class="nc" id="L48">                .setClaims(claims)</span>
+<span class="nc" id="L49">                .setSubject(userDetails.getUsername().trim())</span>
+<span class="nc" id="L50">                .setIssuedAt(new Date(System.currentTimeMillis()))</span>
+<span class="nc" id="L51">                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))</span>
+<span class="nc" id="L52">                .signWith(getSigningKey(), SignatureAlgorithm.HS256)</span>
+<span class="nc" id="L53">                .compact();</span>
+    }
+
+    public String extraerUsername(String token) {
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (token == null || token.isBlank()) {</span>
+<span class="nc" id="L58">            return null;</span>
+        }
+
+<span class="nc" id="L61">        return extraerClaim(token, Claims::getSubject);</span>
+    }
+
+    public boolean validarToken(String token, UserDetails userDetails) {
+<span class="nc bnc" id="L65" title="All 6 branches missed.">        if (token == null || token.isBlank() || userDetails == null) {</span>
+<span class="nc" id="L66">            return false;</span>
+        }
+
+<span class="nc" id="L69">        final String username = extraerUsername(token);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        return username != null</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                &amp;&amp; username.equals(userDetails.getUsername())</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                &amp;&amp; !tokenExpirado(token);</span>
+    }
+
+    private boolean tokenExpirado(String token) {
+<span class="nc" id="L76">        return extraerExpiracion(token).before(new Date());</span>
+    }
+
+    private Date extraerExpiracion(String token) {
+<span class="nc" id="L80">        return extraerClaim(token, Claims::getExpiration);</span>
+    }
+
+    private &lt;T&gt; T extraerClaim(String token, Function&lt;Claims, T&gt; claimsResolver) {
+<span class="nc" id="L84">        final Claims claims = extraerTodosLosClaims(token);</span>
+<span class="nc" id="L85">        return claimsResolver.apply(claims);</span>
+    }
+
+    private Claims extraerTodosLosClaims(String token) {
+<span class="nc" id="L89">        return Jwts.parserBuilder()</span>
+<span class="nc" id="L90">                .setSigningKey(getSigningKey())</span>
+<span class="nc" id="L91">                .build()</span>
+<span class="nc" id="L92">                .parseClaimsJws(token)</span>
+<span class="nc" id="L93">                .getBody();</span>
+    }
+
+    private SecretKey getSigningKey() {
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (secretKey == null || secretKey.getBytes(StandardCharsets.UTF_8).length &lt; 32) {</span>
+<span class="nc" id="L98">            throw new IllegalStateException(&quot;La clave JWT debe tener al menos 32 caracteres para HS256&quot;);</span>
+        }
+
+<span class="nc" id="L101">        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L102">        return Keys.hmacShaKeyFor(keyBytes);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

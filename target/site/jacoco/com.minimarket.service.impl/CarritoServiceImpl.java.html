@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarritoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.service.impl</a> &gt; <span class="el_source">CarritoServiceImpl.java</span></div><h1>CarritoServiceImpl.java</h1><pre class="source lang-java linenums">package com.minimarket.service.impl;
+
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.minimarket.entity.Carrito;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Usuario;
+import com.minimarket.repository.CarritoRepository;
+import com.minimarket.repository.ProductoRepository;
+import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.service.CarritoService;
+
+@Service
+<span class="fc" id="L18">public class CarritoServiceImpl implements CarritoService {</span>
+
+    @Autowired
+    private CarritoRepository carritoRepository;
+
+    @Autowired
+    private ProductoRepository productoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Override
+    public List&lt;Carrito&gt; findAll() {
+<span class="fc" id="L31">        return carritoRepository.findAll();</span>
+    }
+
+    @Override
+    public Carrito findById(Long id) {
+<span class="fc" id="L36">        return carritoRepository.findById(</span>
+<span class="fc" id="L37">                Objects.requireNonNull(id, &quot;El id no puede ser nulo&quot;))</span>
+<span class="fc" id="L38">                .orElse(null);</span>
+    }
+
+    @Override
+    public Carrito save(Carrito carrito) {
+<span class="fc" id="L43">        return carritoRepository.save(</span>
+<span class="fc" id="L44">                Objects.requireNonNull(carrito, &quot;El carrito no puede ser nulo&quot;));</span>
+    }
+
+    @Override
+    public void deleteById(Long id) {
+<span class="fc" id="L49">        carritoRepository.deleteById(</span>
+<span class="fc" id="L50">                Objects.requireNonNull(id, &quot;El id no puede ser nulo&quot;));</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public List&lt;Carrito&gt; findByUsuarioId(Long usuarioId) {
+<span class="fc" id="L55">        return carritoRepository.findByUsuarioId(</span>
+<span class="fc" id="L56">                Objects.requireNonNull(usuarioId, &quot;El usuarioId no puede ser nulo&quot;));</span>
+    }
+
+    // Método agregado para pruebas de comportamiento (stock + relación Producto-Usuario)
+    public Carrito agregarProducto(Long productoId, Long usuarioId, Integer cantidad) {
+<span class="fc" id="L61">        Objects.requireNonNull(productoId, &quot;El id del producto no puede ser nulo&quot;);</span>
+<span class="fc" id="L62">        Objects.requireNonNull(usuarioId, &quot;El id del usuario no puede ser nulo&quot;);</span>
+<span class="fc" id="L63">        Objects.requireNonNull(cantidad, &quot;La cantidad no puede ser nula&quot;);</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (cantidad &lt;= 0) {</span>
+<span class="fc" id="L66">            throw new IllegalArgumentException(&quot;La cantidad debe ser mayor que cero&quot;);</span>
+        }
+
+<span class="fc" id="L69">        Producto producto = productoRepository.findById(productoId)</span>
+<span class="fc" id="L70">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Producto no encontrado&quot;));</span>
+
+<span class="fc" id="L72">        Usuario usuario = usuarioRepository.findById(usuarioId)</span>
+<span class="fc" id="L73">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Usuario no encontrado&quot;));</span>
+
+<span class="fc" id="L75">        Integer stockActual = producto.getStock();</span>
+<span class="fc bfc" id="L76" title="All 4 branches covered.">        if (stockActual == null || stockActual &lt; cantidad) {</span>
+<span class="fc" id="L77">            throw new IllegalArgumentException(&quot;Stock insuficiente para agregar el producto al carrito&quot;);</span>
+        }
+
+<span class="fc" id="L80">        Carrito carrito = new Carrito();</span>
+<span class="fc" id="L81">        carrito.setProducto(producto);</span>
+<span class="fc" id="L82">        carrito.setUsuario(usuario);</span>
+<span class="fc" id="L83">        carrito.setCantidad(cantidad);</span>
+
+        // Reducir stock y persistir si esa es la lógica de negocio deseada
+<span class="fc" id="L86">        producto.setStock(stockActual - cantidad);</span>
+<span class="fc" id="L87">        productoRepository.save(producto);</span>
+
+<span class="fc" id="L89">        return carritoRepository.save(carrito);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

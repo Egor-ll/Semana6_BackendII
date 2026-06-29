@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RolServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.service.impl</a> &gt; <span class="el_source">RolServiceImpl.java</span></div><h1>RolServiceImpl.java</h1><pre class="source lang-java linenums">package com.minimarket.service.impl;
+
+import com.minimarket.entity.Rol;
+import com.minimarket.repository.RolRepository;
+import com.minimarket.service.RolService;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class RolServiceImpl implements RolService {
+
+    private final RolRepository rolRepository;
+
+<span class="fc" id="L15">    public RolServiceImpl(RolRepository rolRepository) {</span>
+<span class="fc" id="L16">        this.rolRepository = rolRepository;</span>
+<span class="fc" id="L17">    }</span>
+
+    @Override
+    public Optional&lt;Rol&gt; findByNombre(String nombre) {
+<span class="fc bfc" id="L21" title="All 4 branches covered.">        if (nombre == null || nombre.isBlank()) {</span>
+<span class="fc" id="L22">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L25">        return rolRepository.findByNombre(nombre.trim());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

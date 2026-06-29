@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VentaController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.controller</a> &gt; <span class="el_source">VentaController.java</span></div><h1>VentaController.java</h1><pre class="source lang-java linenums">package com.minimarket.controller;
+
+import com.minimarket.entity.Venta;
+import com.minimarket.service.VentaService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Validated
+@RestController
+@RequestMapping(&quot;/api/ventas&quot;)
+public class VentaController {
+
+    private final VentaService ventaService;
+
+<span class="fc" id="L22">    public VentaController(VentaService ventaService) {</span>
+<span class="fc" id="L23">        this.ventaService = ventaService;</span>
+<span class="fc" id="L24">    }</span>
+
+    @GetMapping
+    @PreAuthorize(&quot;hasAnyRole('EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;List&lt;Venta&gt;&gt; listarVentas() {
+<span class="fc" id="L29">        return ResponseEntity.ok(ventaService.findAll());</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAnyRole('CLIENTE', 'EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; obtenerVentaPorId(
+            @PathVariable @Positive(message = &quot;El id de la venta debe ser mayor que 0&quot;) Long id
+    ) {
+<span class="fc" id="L37">        Venta venta = ventaService.findById(id);</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        return venta != null ? ResponseEntity.ok(venta) : ResponseEntity.notFound().build();</span>
+    }
+
+    @PostMapping
+    @PreAuthorize(&quot;hasAnyRole('CLIENTE', 'EMPLEADO', 'ADMINISTRADOR')&quot;)
+    public ResponseEntity&lt;?&gt; guardarVenta(@Valid @RequestBody Venta venta) {
+<span class="fc" id="L44">        return ResponseEntity.status(HttpStatus.CREATED).body(ventaService.save(venta));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

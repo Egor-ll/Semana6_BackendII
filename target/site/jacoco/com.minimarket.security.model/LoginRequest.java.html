@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.security.model</a> &gt; <span class="el_source">LoginRequest.java</span></div><h1>LoginRequest.java</h1><pre class="source lang-java linenums">package com.minimarket.security.model;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public class LoginRequest {
+
+    @NotBlank(message = &quot;El nombre de usuario es obligatorio&quot;)
+    @Size(min = 4, max = 50, message = &quot;El nombre de usuario debe tener entre 4 y 50 caracteres&quot;)
+    @Pattern(
+            regexp = &quot;^[a-zA-Z0-9._-]+$&quot;,
+            message = &quot;El nombre de usuario solo puede contener letras, números, puntos, guiones y guiones bajos&quot;
+    )
+    private String username;
+
+    @NotBlank(message = &quot;La contraseña es obligatoria&quot;)
+    @Size(min = 8, max = 120, message = &quot;La contraseña debe tener entre 8 y 120 caracteres&quot;)
+    private String password;
+
+<span class="nc" id="L21">    public LoginRequest() {</span>
+<span class="nc" id="L22">    }</span>
+
+<span class="nc" id="L24">    public LoginRequest(String username, String password) {</span>
+<span class="nc" id="L25">        this.username = username;</span>
+<span class="nc" id="L26">        this.password = password;</span>
+<span class="nc" id="L27">    }</span>
+
+    public String getUsername() {
+<span class="nc" id="L30">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L34">        this.username = username;</span>
+<span class="nc" id="L35">    }</span>
+
+    public String getPassword() {
+<span class="nc" id="L38">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L42">        this.password = password;</span>
+<span class="nc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

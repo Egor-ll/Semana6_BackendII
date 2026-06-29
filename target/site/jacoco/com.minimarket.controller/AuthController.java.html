@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.minimarket.controller;
+
+import com.minimarket.security.model.LoginRequest;
+import com.minimarket.security.model.LoginResponse;
+import com.minimarket.security.service.CustomUserDetailsService;
+import com.minimarket.security.util.JwtUtil;
+import com.minimarket.service.ActividadSeguridadService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
+
+@RestController
+@RequestMapping(&quot;/auth&quot;)
+public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final ActividadSeguridadService actividadSeguridadService;
+
+    public AuthController(AuthenticationConfiguration authenticationConfiguration,
+                          JwtUtil jwtUtil,
+                          CustomUserDetailsService customUserDetailsService,
+<span class="fc" id="L31">                          ActividadSeguridadService actividadSeguridadService) throws Exception {</span>
+<span class="fc" id="L32">        this.authenticationManager = authenticationConfiguration.getAuthenticationManager();</span>
+<span class="fc" id="L33">        this.jwtUtil = jwtUtil;</span>
+<span class="fc" id="L34">        this.customUserDetailsService = customUserDetailsService;</span>
+<span class="fc" id="L35">        this.actividadSeguridadService = actividadSeguridadService;</span>
+<span class="fc" id="L36">    }</span>
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;?&gt; login(@Valid @RequestBody LoginRequest loginRequest,
+                                   HttpServletRequest request) {
+
+<span class="nc" id="L42">        sanitizarLoginRequest(loginRequest);</span>
+
+<span class="nc" id="L44">        String username = loginRequest.getUsername();</span>
+<span class="nc" id="L45">        String ipOrigen = request.getRemoteAddr();</span>
+
+        try {
+<span class="nc" id="L48">            authenticationManager.authenticate(</span>
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+<span class="nc" id="L51">                            loginRequest.getPassword()</span>
+                    )
+            );
+
+<span class="nc" id="L55">            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);</span>
+
+<span class="nc" id="L57">            String token = jwtUtil.generarToken(userDetails);</span>
+
+<span class="nc" id="L59">            actividadSeguridadService.registrar(</span>
+                    username,
+                    &quot;LOGIN_EXITOSO&quot;,
+                    &quot;Inicio de sesión correcto&quot;,
+                    ipOrigen
+            );
+
+<span class="nc" id="L66">            return ResponseEntity.ok(new LoginResponse(token));</span>
+
+<span class="nc" id="L68">        } catch (Exception e) {</span>
+<span class="nc" id="L69">            actividadSeguridadService.registrar(</span>
+                    username,
+                    &quot;LOGIN_FALLIDO&quot;,
+                    &quot;Intento de inicio de sesión con credenciales inválidas&quot;,
+                    ipOrigen
+            );
+
+<span class="nc" id="L76">            return ResponseEntity</span>
+<span class="nc" id="L77">                    .status(HttpStatus.UNAUTHORIZED)</span>
+<span class="nc" id="L78">                    .body(&quot;Usuario o contraseña incorrectos&quot;);</span>
+        }
+    }
+
+    private void sanitizarLoginRequest(LoginRequest loginRequest) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (loginRequest.getUsername() != null) {</span>
+<span class="nc" id="L84">            loginRequest.setUsername(loginRequest.getUsername().trim());</span>
+        }
+<span class="nc" id="L86">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
